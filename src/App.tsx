@@ -1,57 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, { useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
+
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { Box } from '@mui/material';
+import { darkTheme } from './theme';
+
+import HomePage from './pages/HomePage';
+import WishlistPage from './pages/WishlistPage';
+import ProfilePage from './pages/ProfilePage';
+import NotFoundPage from './pages/NotFoundPage';
+import Header from './components/Header';
+import Footer from './components/Footer';
+
+import RequireAuth from './hoc/RequireAuth';
+import { useAppDispach } from './redux/hook';
+import { setUser } from './redux/userSlice';
 
 function App() {
+  const dispatch = useAppDispach();
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      dispatch(setUser({id:userId, isAuthorized: true}));
+    }
+  }, []);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Box display="flex" flexDirection="column" height={1}>
+        <Header />
+          <Box sx={{flex: 1}}>
+            {/* ROUTES */}
+            <Routes>
+              <Route path='/' element={<HomePage />} />
+              <Route path='/wishlist' element={<WishlistPage />} />
+              <Route path='/profile' element={
+                <RequireAuth>
+                  <ProfilePage />
+                </RequireAuth>
+              } />
+              <Route path='*' element={<NotFoundPage />} />
+            </Routes>
+            {/* ROUTES */}
+          </Box>
+        <Footer />
+      </Box>
+    </ThemeProvider>
   );
 }
 
